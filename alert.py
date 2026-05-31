@@ -30,12 +30,8 @@ def format_num(value, digits=4):
     return "-"
 
 
-def is_purchase_paused(fund):
-    fields = [
-        fund.get("purchaseStatus"),
-        fund.get("purchaseLimit"),
-    ]
-    return any("暂停申购" in str(value) for value in fields if value)
+def is_purchase_limit_paused(fund):
+    return str(fund.get("purchaseLimit") or "").strip() == "暂停申购"
 
 
 def build_message(funds, synced_at):
@@ -44,7 +40,7 @@ def build_message(funds, synced_at):
         for fund in funds
         if isinstance(fund.get("premiumRate"), (int, float))
         and fund["premiumRate"] >= THRESHOLD
-        and not is_purchase_paused(fund)
+        and not is_purchase_limit_paused(fund)
     ]
     candidates.sort(key=lambda fund: fund.get("premiumRate") or 0, reverse=True)
 
@@ -52,10 +48,10 @@ def build_message(funds, synced_at):
     lines = [f"基金套利提醒 {now}", f"数据时间：{synced_at or '-'}"]
 
     if not candidates:
-        lines.append(f"暂无超过 {pct(THRESHOLD)} 且未暂停申购的 QDII-LOF 溢价机会。")
+        lines.append(f"暂无超过 {pct(THRESHOLD)} 且限购栏不为暂停申购的 QDII-LOF 溢价机会。")
         return "\n".join(lines)
 
-    lines.append(f"筛选：溢价率 >= {pct(THRESHOLD)}，排除暂停申购，按溢价率降序")
+    lines.append(f"筛选：溢价率 >= {pct(THRESHOLD)}，排除限购栏为暂停申购，按溢价率降序")
     for fund in candidates[:MAX_ITEMS]:
         lines.extend(
             [
