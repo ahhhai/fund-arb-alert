@@ -31,7 +31,7 @@ def format_num(value, digits=4):
 
 
 def is_purchase_limit_paused(fund):
-    return str(fund.get("purchaseLimit") or "").strip() == "暂停申购"
+    return "暂停申购" in str(fund.get("purchaseLimit") or "")
 
 
 def build_message(funds, synced_at):
