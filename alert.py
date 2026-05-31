@@ -11,7 +11,7 @@ WXPUSHER_URL = "https://wxpusher.zjiecode.com/api/send/message"
 
 APP_TOKEN = os.environ["WXPUSHER_APP_TOKEN"]
 UID = os.getenv("WXPUSHER_UID", "UID_ESoc1pNAZNtEBsGrSjbmHQzri9ni")
-THRESHOLD = float(os.getenv("PREMIUM_THRESHOLD", "0.02"))
+THRESHOLD = float(os.getenv("PREMIUM_THRESHOLD", "0"))
 MAX_ITEMS = int(os.getenv("MAX_ITEMS", "10"))
 DEBUG = os.getenv("DEBUG", "").lower() in {"1", "true", "yes"}
 
@@ -30,12 +30,21 @@ def format_num(value, digits=4):
     return "-"
 
 
+def is_purchase_paused(fund):
+    fields = [
+        fund.get("purchaseStatus"),
+        fund.get("purchaseLimit"),
+    ]
+    return any("暂停申购" in str(value) for value in fields if value)
+
+
 def build_message(funds, synced_at):
     candidates = [
         fund
         for fund in funds
         if isinstance(fund.get("premiumRate"), (int, float))
         and fund["premiumRate"] >= THRESHOLD
+        and not is_purchase_paused(fund)
     ]
     candidates.sort(key=lambda fund: fund.get("premiumRate") or 0, reverse=True)
 
@@ -43,10 +52,10 @@ def build_message(funds, synced_at):
     lines = [f"基金套利提醒 {now}", f"数据时间：{synced_at or '-'}"]
 
     if not candidates:
-        lines.append(f"暂无超过 {pct(THRESHOLD)} 的 QDII-LOF 溢价机会。")
+        lines.append(f"暂无超过 {pct(THRESHOLD)} 且未暂停申购的 QDII-LOF 溢价机会。")
         return "\n".join(lines)
 
-    lines.append(f"筛选：溢价率 >= {pct(THRESHOLD)}，按溢价率降序")
+    lines.append(f"筛选：溢价率 >= {pct(THRESHOLD)}，排除暂停申购，按溢价率降序")
     for fund in candidates[:MAX_ITEMS]:
         lines.extend(
             [
