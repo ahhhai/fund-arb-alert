@@ -83,6 +83,10 @@ def fetch_funds():
 
 
 def send_message(content):
+    uids = [uid.strip() for uid in UID.split(",") if uid.strip()]
+    if not uids:
+        raise RuntimeError("WXPUSHER_UID is empty")
+
     response = requests.post(
         WXPUSHER_URL,
         json={
@@ -90,7 +94,7 @@ def send_message(content):
             "content": content,
             "summary": "基金套利提醒",
             "contentType": 1,
-            "uids": [UID],
+            "uids": uids,
         },
         timeout=20,
     )
