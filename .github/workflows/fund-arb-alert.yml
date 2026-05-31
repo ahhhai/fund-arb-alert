@@ -22,4 +22,4 @@ jobs:
         env:
           WXPUSHER_APP_TOKEN: ${{ secrets.WXPUSHER_APP_TOKEN }}
           WXPUSHER_UID: ${{ secrets.WXPUSHER_UID }}
-          PREMIUM_THRESHOLD: "0.02"
+          PREMIUM_THRESHOLD: "0.00"
