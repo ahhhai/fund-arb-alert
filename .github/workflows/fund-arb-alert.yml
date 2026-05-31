@@ -1,0 +1,25 @@
+name: fund-arb-alert
+
+on:
+  schedule:
+    # GitHub Actions uses UTC. This is 14:30 in Asia/Shanghai.
+    - cron: "30 6 * * 1-5"
+  workflow_dispatch:
+
+jobs:
+  alert:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - run: pip install -r requirements.txt
+
+      - run: python alert.py
+        env:
+          WXPUSHER_APP_TOKEN: ${{ secrets.WXPUSHER_APP_TOKEN }}
+          WXPUSHER_UID: ${{ secrets.WXPUSHER_UID }}
+          PREMIUM_THRESHOLD: "0.02"
