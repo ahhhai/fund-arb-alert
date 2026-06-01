@@ -3,7 +3,11 @@ name: fund-arb-alert
 on:
   schedule:
     # GitHub Actions uses UTC. This is 14:30 in Asia/Shanghai.
+    # GitHub Actions uses UTC. These are 14:30, 14:35, 14:40 in Asia/Shanghai.
     - cron: "30 6 * * 1-5"
+    - cron: "35 6 * * 1-5"
+    - cron: "40 6 * * 1-5"
+    - cron: "50 6 * * 1-5"
   workflow_dispatch:
 
 jobs:
